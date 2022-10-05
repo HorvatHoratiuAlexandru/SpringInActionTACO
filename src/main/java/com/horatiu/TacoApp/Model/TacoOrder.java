@@ -1,6 +1,7 @@
 package com.horatiu.TacoApp.Model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.validation.constraints.Digits;
@@ -13,6 +14,10 @@ import lombok.Data;
 
 @Data
 public class TacoOrder {
+	
+	private static final long seriaVersionUID = 1L;
+	private long id;
+	private Date PlacedAt;
 	
 	@NotBlank(message="Delivery name is required")
 	private String deliveryName;

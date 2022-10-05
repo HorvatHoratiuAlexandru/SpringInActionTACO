@@ -1,11 +1,13 @@
 package com.horatiu.TacoApp.Controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import com.horatiu.TacoApp.Model.Ingredient;
 import com.horatiu.TacoApp.Model.Taco;
 import com.horatiu.TacoApp.Model.TacoOrder;
+import com.horatiu.TacoApp.repository.IngredientRepository;
 import com.horatiu.TacoApp.Model.Ingredient.Type;
 
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +31,19 @@ import lombok.extern.slf4j.Slf4j;
 @SessionAttributes("tacoOrder")
 public class DesignTacoController {
 	
+	private final IngredientRepository ingredientRepo;
+	
+	@Autowired
+	public DesignTacoController(IngredientRepository ingredientRepo) {
+		this.ingredientRepo = ingredientRepo;
+	}
 	@ModelAttribute
 	public void addIngredientsToModel(Model model) {
+		
+		List<Ingredient> ingredients = new ArrayList<>();
+		ingredientRepo.findAll().forEach(i-> ingredients.add(i));
+		
+		/* old code
 		List<Ingredient> ingredients = Arrays.asList(
 				new Ingredient("FLTO", "Flour Tortillia", Type.WRAP),
 				new Ingredient("COTO", "Corn Tortilla", Type.WRAP),
@@ -42,13 +56,15 @@ public class DesignTacoController {
 				new Ingredient("SLSA", "Salsa", Type.SAUCE),
 				new Ingredient("SRCR", "Sour Cream", Type.SAUCE)
 				);
+		*/
 		Type[] types = Ingredient.Type.values();
 		System.out.println(Arrays.toString(types));
 		for(Type type : types) {
 			System.out.print(type + " ");
 			model.addAttribute(type.toString().toLowerCase(),
-			ingredients.stream().filter(x -> x.getType().equals(type)).collect(Collectors.toList()));
+					filterByType(ingredients, type));
 		}
+		
 	}
 	
 	@ModelAttribute(name = "tacoOrder")
@@ -80,7 +96,13 @@ public class DesignTacoController {
 		
 	}
 	
-	
+	private Iterable<Ingredient> filterByType(List<Ingredient> ingredients, Type type) {
+			 
+		return ingredients
+			 .stream()
+			 .filter(x -> x.getType().equals(type))
+			 .collect(Collectors.toList());
+			 }
 	
 	
 	
